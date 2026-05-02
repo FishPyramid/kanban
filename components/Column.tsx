@@ -12,21 +12,17 @@ const Column: React.FC<ColumnProps> = ({ title, children, onDrop, onAdd }) => {
         e.preventDefault();
     };
 
-    const handleClick = () => {
-        onAdd(title)
-    }
-
     return (
         <GlowCard customSize={true}>
             <div
                 onDragOver={handleDragOver}
                 onDrop={() => onDrop(title)}
             >
-                <h1 style={{userSelect: 'none'}} className="text-xl text-center font-bold text-shadow-amber-50 text-shadow-md/30">{title}</h1>
+                <h1 style={{userSelect: 'none'}} className="text-xl text-center font-bold text-shadow-amber-50 text-shadow-md/30 text-wrap wrap-anywhere">{title}</h1>
                 <div className="flex flex-col mt-4 gap-2">
                     {children}
                 </div>
-                <button style={{userSelect: 'none', cursor:'pointer'}} onClick={handleClick} className="
+                <button style={{userSelect: 'none', cursor:'pointer'}} onClick={() => onAdd(title)} className="
                     mt-4
                     rounded-xl
                     opacity-80

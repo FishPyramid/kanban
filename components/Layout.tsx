@@ -8,29 +8,42 @@ interface LayoutProps {
     children: React.ReactNode;
 }
 
+interface Task {
+    id: string;
+    title: string;
+    status: string;
+}
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-    const [tasks, setTasks] = useState([
-        { id: crypto.randomUUID(), title: "gfdgd", status: "To Do" },
-        { id: crypto.randomUUID(), title: "y5rgfd", status: "In Progress" },
-        { id: crypto.randomUUID(), title: "4ygfd", status: "Done" },
-        { id: crypto.randomUUID(), title: "gfdy4", status: "Done" },
-    ]);
+    const [tasks, setTasks] = useState<Task[]>([]);
     const [draggedId, setDraggedId] = useState<string | null>(null);
+    const [newTaskId, setNewTaskId] = useState<string | null>(null);
 
     const handleDrop = (status: string) => {
         if (!draggedId) return;
         setTasks(prev => prev.map(t => t.id === draggedId ? { ...t, status } : t));
     };
 
+    const handleUpdateTask = (id: string, newTitle: string) => {
+        setTasks(prev => 
+            prev.map(task => 
+                task.id === id ? { ...task, title: newTitle } : task
+            )
+        );
+    };
+
+    const deleteTask = (id: string) => {
+        setTasks((prev) => prev.filter((task) => task.id !== id));
+    };
+
     const addItem = (col: string) => {
-        const title = window.prompt("Enter task name...");
-        if (!title) return;
         const newTask = {
             id: crypto.randomUUID(),
-            title: title,
+            title: "",
             status: col
         };
         setTasks((prev) => [...prev, newTask]);
+        setNewTaskId(newTask.id);
     }
 
     const columns = ["To Do", "In Progress", "In Review", "Done"];
@@ -38,7 +51,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
         <div className="min-h-screen text-white p-8">
             <div className="absolute inset-0 -z-10 opacity-70">
-                <Shader fs={code} />
+                <div className="w-[5%] h-[5%] scale-[20] origin-top-left">
+                    <Shader fs={code} />
+                </div>
             </div>
             
             {children}
@@ -54,6 +69,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                                     id={t.id}
                                     title={t.title}
                                     onDragStart={() => setDraggedId(t.id)}
+                                    autoFocus={newTaskId === t.id}
+                                    onUpdate={ (id, title) => {
+                                        handleUpdateTask(id, title);
+                                        setNewTaskId(null);
+                                    }}
+                                    onDelete={deleteTask}
                                 />
                             ))}
                     </Column>
